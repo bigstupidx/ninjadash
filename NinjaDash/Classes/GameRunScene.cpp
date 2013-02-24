@@ -1,5 +1,5 @@
 #include "GameRunScene.h"
-#include "GameOverScene.h"
+//#include "GameOverScene.h"
 //#include "platform/platform.h"
 
 USING_NS_CC;
