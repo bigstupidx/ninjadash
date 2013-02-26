@@ -62,12 +62,13 @@ public:
 	//virtual void ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent);
 	//virtual void draw();
     // implement the "static node()" method manually
+	virtual void keyBackClicked();
     CREATE_FUNC(GameRun);
 private:
 	void cbUpdateTile(float aDelta);
 	void cbUpdateForever(float aDelta);
 	void resetCanHert(float aDelta);
-
+	void pauseCallback(CCObject* pSender);
 private:
 	cocos2d::CCSprite* m_pPlayer;
 	cocos2d::CCSprite* m_pCurPlayerOn;
@@ -80,6 +81,7 @@ private:
 	cocos2d::CCMoveBy* m_MoveLeft;
 	cocos2d::CCMoveBy* m_MoveRight;
 	cocos2d::CCLabelTTF* m_FloorInfo;
+	cocos2d::CCMenu* m_pPause;
 
 	touch_type m_TouchType;
 	player_state m_psPlayerState;

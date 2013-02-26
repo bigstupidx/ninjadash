@@ -16,9 +16,10 @@ class GameMenu : public cocos2d::CCLayer
 		MT_Count
 	};
 public:
-	virtual bool init();  
+	virtual bool init();
 	static cocos2d::CCScene* scene();
 	void menuCallback(CCObject* pSender);
+	virtual void keyBackClicked();
 	CREATE_FUNC( GameMenu );
 };
 

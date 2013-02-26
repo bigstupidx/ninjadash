@@ -10,9 +10,11 @@ bool GameMenu::init()
 	do 
 	{
 
-
 		CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
 		CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
+
+		// Important,enable key
+		setKeypadEnabled(true);
 
 		CCSprite* logo = CCSprite::create( "game_logo.png" );
 		logo->setScale( 1.5f );
@@ -63,6 +65,8 @@ bool GameMenu::init()
 		this->addChild( pMenu );
 
 
+			
+
 		bRet = true;
 	} while (0);
 	return bRet;
@@ -86,7 +90,7 @@ void GameMenu::menuCallback( CCObject* pSender )
 		break;
 	case MT_Ranking:
 		{
-			CCTransitionFadeTR* transScene = CCTransitionFadeTR::create( 0.8f, GameOver::scene(0) );
+			CCTransitionFadeTR* transScene = CCTransitionFadeTR::create( 0.8f, GameOver::scene(0,true) );
 			CCDirector::sharedDirector()->replaceScene( transScene );
 		}
 		break;
@@ -129,4 +133,11 @@ CCScene* GameMenu::scene()
 
 	// return the scene
 	return scene;
+}
+
+
+void GameMenu::keyBackClicked()
+{
+	CCLOG("111111111111111111111111111111111111111111111111111");
+	exit(0);
 }

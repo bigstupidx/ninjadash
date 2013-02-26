@@ -55,6 +55,8 @@ bool GameRun::init()
 		m_CanHert = true;
 		// Enabled touch utility
 		setTouchEnabled(true);
+		// Important,enable key
+		setKeypadEnabled(true);
 
         //// Get window size and place the label upper. 
         CCSize size = CCDirector::sharedDirector()->getWinSize();
@@ -161,6 +163,16 @@ bool GameRun::init()
 		m_FloorInfo->setOpacity(128);
 		addChild(m_FloorInfo, 1.0f );
 
+		// Pause Button
+		CCMenuItemImage* pause = CCMenuItemImage::create( "pause.png", "pause.png" );
+		pause->setTag( 0 );
+		pause->setTarget( this, menu_selector( GameRun::pauseCallback ) );
+		pause->setPosition(  ccp( CCEGLView::sharedOpenGLView()->getFrameSize().width / 2, CCEGLView::sharedOpenGLView()->getFrameSize().height / 2 ) );
+
+		m_pPause = CCMenu::create( pause, NULL );
+		m_pPause->setPosition( CCPointZero );
+		this->addChild( m_pPause,1.1f );
+		m_pPause->setVisible(false);
 
 		schedule(schedule_selector(GameRun::cbUpdateTile),1.0f);
 		schedule(schedule_selector(GameRun::cbUpdateForever));
@@ -564,6 +576,31 @@ void GameRun::unstableFinished(CCNode* target,void* data)
 	((CCSprite*)target)->setVisible( false );
 	this->removeChild((CCSprite*)target,true);
 }
+
+void GameRun::keyBackClicked()
+{
+	if(m_psPlayerState != PS_NOT_START)
+	{
+		if(!CCDirector::sharedDirector()->isPaused())
+		{
+			CCDirector::sharedDirector()->pause();
+			m_pPause->setVisible(true);
+		}
+		else
+		{
+			CCDirector::sharedDirector()->resume();
+			m_pPause->setVisible(false);
+		}
+	}
+}
+
+void GameRun::pauseCallback( CCObject* pSender )
+{
+	CCDirector::sharedDirector()->resume();
+	m_pPause->setVisible(false);
+}
+
+
 
 
 
