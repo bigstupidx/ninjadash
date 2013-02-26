@@ -1,7 +1,7 @@
 #include "GameOverScene.h"
 #include "GameMenuScene.h"
 #include "GameRunScene.h"
-#include "UTL_pub.h"
+
 USING_NS_CC;
 
 bool GameOver::init()
@@ -14,9 +14,9 @@ bool GameOver::init()
 
 		CCSprite* background = CCSprite::create( "bg_gameover.png" );
 		CC_BREAK_IF(!background);
-		background->setScaleX(CANVAS_WIDTH / background->getContentSize().width);
-		background->setScaleY(SCREEN_HEIGHT / background->getContentSize().height);
-		background->setPosition( ccp( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 ) );
+		background->setScaleX(CCEGLView::sharedOpenGLView()->getFrameSize().width / background->getContentSize().width);
+		background->setScaleY(CCEGLView::sharedOpenGLView()->getFrameSize().height / background->getContentSize().height);
+		background->setPosition( ccp( CCEGLView::sharedOpenGLView()->getFrameSize().width / 2, CCEGLView::sharedOpenGLView()->getFrameSize().height / 2 ) );
 		this->addChild( background, -1 );
 
 		// Create 2 Menu Items
@@ -101,7 +101,20 @@ void GameOver::onEnter()
 	fclose(w);
 */
 	
-	FILE* p = fopen("..\\assets\\data","r+");
+#if(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)  
+	const char* FILE_NAME = "/mnt/sdcard/ninjadata";
+#elif(CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+	const char* FILE_NAME = "../assets/data";
+#endif
+	FILE* p = fopen(FILE_NAME,"r");
+	if(!p)
+	{
+		FILE* w = fopen(FILE_NAME,"w");
+		fwrite("0",1,1,w);
+		fclose(w);
+	}
+	p = fopen(FILE_NAME,"r+");
+
 	char data[8] = {0};
 	fread(data,1,8,p);
 	
@@ -121,11 +134,11 @@ void GameOver::onEnter()
 	// Font
 	CCString* s1 = CCString::createWithFormat("%d",m_nThisScore);
 	CCLabelTTF* info1 = CCLabelTTF::create(s1->getCString(),"Stencil Std",fontSize);
-	info1->setPosition(CCPoint(SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2 + 140));
+	info1->setPosition(CCPoint(CCEGLView::sharedOpenGLView()->getFrameSize().width / 2,CCEGLView::sharedOpenGLView()->getFrameSize().height * 1.35 / 2 ));
 	addChild(info1);
 ;
 	CCLabelTTF* info2 = CCLabelTTF::create(sMax->getCString(),"Stencil Std",fontSize);
-	info2->setPosition(CCPoint(SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2 +  40));
+	info2->setPosition(CCPoint(CCEGLView::sharedOpenGLView()->getFrameSize().width / 2,CCEGLView::sharedOpenGLView()->getFrameSize().height * 1.1 / 2 ));
 	addChild(info2);
 
 	CCNode::onEnter();

@@ -1,6 +1,6 @@
 #include "GameRunScene.h"
-//#include "GameOverScene.h"
-//#include "platform/platform.h"
+#include "GameOverScene.h"
+#include "platform/platform.h"
 
 USING_NS_CC;
 using namespace std;
@@ -62,32 +62,32 @@ bool GameRun::init()
 
 		CCSprite* background = CCSprite::create( "bg_game1.png" );
 		CC_BREAK_IF( !background );
-		background->setScaleX( CANVAS_WIDTH / background->getContentSize().width );
-		background->setScaleY( SCREEN_HEIGHT / background->getContentSize().height );
-		background->setPosition( ccp( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 ) );
+		background->setScaleX( CCEGLView::sharedOpenGLView()->getFrameSize().width / background->getContentSize().width );
+		background->setScaleY( CCEGLView::sharedOpenGLView()->getFrameSize().height / background->getContentSize().height );
+		background->setPosition( ccp( CCEGLView::sharedOpenGLView()->getFrameSize().width / 2, CCEGLView::sharedOpenGLView()->getFrameSize().height / 2 ) );
 		addChild( background, -1 );
 
 		m_pHurtSprite = CCSprite::create( "hurt1.png" );
 		CC_BREAK_IF( !m_pHurtSprite );
-		m_pHurtSprite->setScaleX( CANVAS_WIDTH / m_pHurtSprite->getContentSize().width );
-		m_pHurtSprite->setScaleY( SCREEN_HEIGHT / m_pHurtSprite->getContentSize().height );
-		m_pHurtSprite->setPosition( ccp( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 ) );
+		m_pHurtSprite->setScaleX( CCEGLView::sharedOpenGLView()->getFrameSize().width / m_pHurtSprite->getContentSize().width );
+		m_pHurtSprite->setScaleY( CCEGLView::sharedOpenGLView()->getFrameSize().height / m_pHurtSprite->getContentSize().height );
+		m_pHurtSprite->setPosition( ccp( CCEGLView::sharedOpenGLView()->getFrameSize().width / 2, CCEGLView::sharedOpenGLView()->getFrameSize().height / 2 ) );
 		m_pHurtSprite->setVisible( false );
 		addChild( m_pHurtSprite );
 
 		CCSize springSize = CCSizeMake( 510, 30 );
 		CCSprite* top_spring = CCSprite::create("top_bar2.png", CCRectMake( 0, 287 - springSize.height , springSize.width, springSize.height ) );
 		CC_BREAK_IF( !top_spring );
-		top_spring->setScaleX( CANVAS_WIDTH / top_spring->getContentSize().width );
+		top_spring->setScaleX( CCEGLView::sharedOpenGLView()->getFrameSize().width / top_spring->getContentSize().width );
 		top_spring->setPosition( ccp( size.width / 2, size.height - springSize.height / 2 ) );
-		addChild( top_spring );
+		addChild( top_spring, 1.0f );
 
 		for(int i = 0;i < MAX_LIFE;i++)
 		{
 			m_pLifeHeart[i] = CCSprite::create("food_heart.png");
 			CC_BREAK_IF( !m_pLifeHeart[i] );
 			addChild( m_pLifeHeart[i] );
-			const int X_Off = (SCREEN_WIDTH - CANVAS_WIDTH) / 2 + 30; 
+			const int X_Off = 30; 
 			m_pLifeHeart[i]->setPosition(CCPoint(X_Off + i * 35, 20));
 		}
 
@@ -138,25 +138,25 @@ bool GameRun::init()
 
 		/*m_MoveLeft	= CCRepeatForever::create( CCMoveBy::create( .5f, ccp( -100, 0 ) ) );
 		m_MoveRight = CCRepeatForever::create( CCMoveBy::create( .5f, ccp(  100, 0 ) ) );*/
-		m_MoveLeft	= CCMoveBy::create( 1.8f, ccp( -CANVAS_WIDTH, 0 ) );
-		m_MoveRight = CCMoveBy::create( 1.8f, ccp(  CANVAS_WIDTH, 0 ) );
+		m_MoveLeft	= CCMoveBy::create( 1.8f, ccp( -CCEGLView::sharedOpenGLView()->getFrameSize().width, 0 ) );
+		m_MoveRight = CCMoveBy::create( 1.8f, ccp(  CCEGLView::sharedOpenGLView()->getFrameSize().width, 0 ) );
 		m_MoveLeft->retain();
 		m_MoveRight->retain();
 
 		// Create 2 Menu Items
 		CCMenuItemImage* startItem = CCMenuItemImage::create( "go_up.png", "go_down.png" );
 		startItem->setTarget( this, menu_selector( GameRun::menuStartCallback ) );
-		startItem->setPosition( ccp( size.width / 2 , 400 ) );
+		startItem->setPosition( ccp( size.width / 2 , size.height / 2 ) );
 		startItem->setScale( 1.5f );
 
 		// Add to Menu
 		CCMenu* pMenu = CCMenu::create( startItem, NULL );
 		pMenu->setPosition( CCPointZero );
-		this->addChild( pMenu );
+		this->addChild( pMenu, 1.0f );
 
 		// Font
 	    m_FloorInfo = cocos2d::CCLabelTTF::create("","Stencil Std",80.0f);
-		m_FloorInfo->setPosition(CCPoint(SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2));
+		m_FloorInfo->setPosition(CCPoint(CCEGLView::sharedOpenGLView()->getFrameSize().width / 2,CCEGLView::sharedOpenGLView()->getFrameSize().height / 2));
 		m_FloorInfo->setScale(3.0f);
 		m_FloorInfo->setOpacity(128);
 		addChild(m_FloorInfo, 1.0f );
@@ -173,16 +173,10 @@ bool GameRun::init()
 
 void GameRun::menuStartCallback(CCObject* pSender)
 {
-// 	if( !m_bStarted )
-// 	{
 	m_psPlayerState = PS_DROPPING;
 	CCMenuItem* pItem = (CCMenuItem*)pSender;
 	CCMenu* pMenu = (CCMenu*)pItem->getParent();
 	pMenu->setVisible( false );
-	//	removeChild( pMenu, true );
-//	pMenu->release();
-
-
 }
 
 void GameRun::spriteMoveFinished( CCNode* pSender )
@@ -191,12 +185,10 @@ void GameRun::spriteMoveFinished( CCNode* pSender )
 	pSender->release();
 }
 
-
 void GameRun::spriteHurtFinished( CCNode* pSender )
 {
 	pSender->stopAllActions();
 	pSender->setVisible( false );
-	
 }
 
 void GameRun::resetCanHert( float aDelta )
@@ -210,8 +202,6 @@ void GameRun::cbUpdateTile( float aDelta )
 
 	unschedule(schedule_selector(GameRun::cbUpdateTile));
 	schedule(schedule_selector(GameRun::cbUpdateTile),r);
-
-	CCLOG("ABCDEF ==> %f %f",aDelta,r);
 
 	CCSprite* sprite = NULL;
 	CCFiniteTimeAction* action1 = NULL;
@@ -270,14 +260,6 @@ void GameRun::cbUpdateTile( float aDelta )
 	case BK_UNSTABLE:
 		{
 			sprite = CCSprite::create("footboard_unstable1.png");
-			//CCAnimation* animation = CCAnimation::create();
-			//animation->addSpriteFrameWithFileName("footboard_unstable1.png");
-			//animation->addSpriteFrameWithFileName("footboard_unstable2.png");
-			//// should last 2.8 seconds. And there are 14 frames.
-			//animation->setDelayPerUnit(2.8f / 14.0f);
-			//animation->setRestoreOriginalFrame(true);
-			//animation->setLoops(kCCRepeatForever);
-			//action1 = CCAnimate::create(animation);
 		}
 		break;
 	default:
@@ -290,24 +272,21 @@ void GameRun::cbUpdateTile( float aDelta )
 	int imgWidth = sprite->getContentSize().width;
 	int imgHeight = sprite->getContentSize().height;
 
-	int min = (SCREEN_WIDTH - CANVAS_WIDTH + imgWidth) / 2;
-	int max = (SCREEN_WIDTH + CANVAS_WIDTH - imgWidth) / 2;
+	int min = imgWidth / 2;
+	int max = (CCEGLView::sharedOpenGLView()->getFrameSize().width + CCEGLView::sharedOpenGLView()->getFrameSize().width - imgWidth) / 2;
 
 	int x = min + (float)rand() / RAND_MAX * (max - min);
 
 	sprite->setPosition(ccp(x,-50));
 	
-	CCFiniteTimeAction* action2 = CCMoveTo::create(5.f,ccp(x,850));
+	CCFiniteTimeAction* action2 = CCMoveTo::create(5.f,ccp(x,CCEGLView::sharedOpenGLView()->getFrameSize().height + 200));
 	CCFiniteTimeAction* actionMoveDone = CCCallFuncN::create( sprite, callfuncN_selector(GameRun::spriteMoveFinished));
 	if(action1)
 	{
-		//CCFiniteTimeAction* tmpAction = CCSpawn::create(action1,action2,NULL);
-		//sprite->runAction(CCSequence::create(tmpAction,actionMoveDone,NULL));
 		sprite->runAction(CCSpawn::create(action1,action2,NULL));
 	}
 	else
 	{
-		//sprite->runAction(CCSequence::create(action2,actionMoveDone,NULL));
 		sprite->runAction(action2);
 	}
 
@@ -316,45 +295,23 @@ void GameRun::cbUpdateTile( float aDelta )
 	this->addChild(sprite);
 
 	// Update Floor Info
-	CCString* s = CCString::stringWithFormat("%d",++m_CntOfFloors);
+	if(m_psPlayerState != PS_NOT_START)
+	{
+		if((++m_CntOfFloors % 20) == 0 && m_CntOfLifes < MAX_LIFE)
+		{
+			++m_CntOfLifes;
+		}
+	}
+	CCString* s = CCString::createWithFormat("%d",m_CntOfFloors);
 	m_FloorInfo->setString(s->getCString());
-
-	//CCLOG("List Count is ===> %d",m_TileList.size());
-
-	//do 
-	//{
-
-	//	CCSprite* sprite = CCSprite::create("GameRun.png");
-	//	CC_BREAK_IF(! sprite);
-
-	//	int temp = sprite->getContentSize().width;
-	//	int x = ((float)rand() / RAND_MAX) * (CANVAS_WIDTH) + (SCREEN_WIDTH - CANVAS_WIDTH) / 2;;
-	//	sprite->setPosition(ccp(x,-50));
-	//	sprite->setScaleX(0.4);
-	//	sprite->setScaleY(0.1);
-
-	//	CCFiniteTimeAction* action = CCMoveTo::create(5.f,ccp(x,850));
-	//	sprite->runAction(action);
-
-	//	this->addChild(sprite);
-	//	float r = (float)(std::rand() & (RAND_MAX));
-	//	r /= RAND_MAX;
-	//	r = (3 - 1) * r + 1;
-	//	//scheduleOnce(schedule_selector(GameRun::cbUpdateTile), r);
-	//	//schedule(schedule_selector(GameRun::cbUpdateTile), 0,0,r);
-	//} while (0);
 }
 
 void GameRun::ccTouchesBegan( cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent )
 {
-	//if( !m_bStarted )
-	//{
-	//	m_psPlayerState = PS_DROPPING;
-	//	m_bStarted = true;
-	//}
 	m_pPlayer->setFlipX(false);
 	CCTouch* tch = (CCTouch*)(pTouches->anyObject());
-	if(tch->getLocation().x < 1024 / 2)
+	int screenWidth = CCEGLView::sharedOpenGLView()->getFrameSize().width;
+	if(tch->getLocation().x < screenWidth / 2)
 	{
 
 		m_pPlayer->runAction( m_AnimLeft );
@@ -371,27 +328,17 @@ void GameRun::ccTouchesMoved( cocos2d::CCSet *pTouches, cocos2d::CCEvent *pEvent
 {
 	m_pPlayer->setFlipX(false);
 	CCTouch* tch = (CCTouch*)(pTouches->anyObject());
-	if(tch->getLocation().x < 1024 / 2)
+	int screenWidth = CCEGLView::sharedOpenGLView()->getFrameSize().width;
+	if(tch->getLocation().x < screenWidth / 2)
 	{
 		m_pPlayer->stopAllActions();
-// 		if( m_psPlayerState = PS_DROPPING )
-// 		{
-// 			m_pPlayer->runAction( m_AnimLeft );
-// 		}
-// 		else
-// 		{
-// 			m_pPlayer->runAction( CCSpawn::create( m_AnimLeft, m_MoveLeft, NULL ) );
-// 		}
-
 		m_pPlayer->runAction( m_AnimLeft );
-		
 		m_TouchType = TT_LEFT;
 	}
 	else
 	{
 		m_pPlayer->stopAllActions();
 		m_pPlayer->runAction( m_AnimRight );
-
 		m_TouchType = TT_RIGHT;
 	}
 }
@@ -420,7 +367,6 @@ void GameRun::cbUpdateForever( float aDelta )
 		{
 			assert( m_pCurPlayerOn );
 			m_pPlayer->setPositionY( m_pCurPlayerOn->getPositionY() + m_pPlayer->getContentSize().height - 10 );
-//			CCLOG("NNNNNNNNNNOOOOOOOOOOOOOORRRRRRRRRRRRRMMMMMMMMMMMMAALL  %d",timeGetTime());
 		}
 		break;
 	case PS_JUMPING:
@@ -469,17 +415,17 @@ void GameRun::cbUpdateForever( float aDelta )
 	}
 
 	// Clip the player`s position
-	if( m_pPlayer->getPositionX() < ( SCREEN_WIDTH - CANVAS_WIDTH + m_pPlayer->getContentSize().width ) / 2 )
+	if( m_pPlayer->getPositionX() < (  m_pPlayer->getContentSize().width ) / 2 )
 	{
-		m_pPlayer->setPositionX( ( SCREEN_WIDTH - CANVAS_WIDTH + m_pPlayer->getContentSize().width ) / 2 );
+		m_pPlayer->setPositionX( ( m_pPlayer->getContentSize().width ) / 2 );
 	}
-	else if( m_pPlayer->getPositionX() > ( SCREEN_WIDTH + CANVAS_WIDTH  - m_pPlayer->getContentSize().width ) / 2 )
+	else if( m_pPlayer->getPositionX() > ( CCEGLView::sharedOpenGLView()->getFrameSize().width + CCEGLView::sharedOpenGLView()->getFrameSize().width  - m_pPlayer->getContentSize().width ) / 2 )
 	{
-		m_pPlayer->setPositionX( ( SCREEN_WIDTH + CANVAS_WIDTH - m_pPlayer->getContentSize().width ) / 2 );
+		m_pPlayer->setPositionX( ( CCEGLView::sharedOpenGLView()->getFrameSize().width + CCEGLView::sharedOpenGLView()->getFrameSize().width - m_pPlayer->getContentSize().width ) / 2 );
 	}
 
 	// Check whether player hurt
-	float ClipYPos = 770 - m_pPlayer->getContentSize().height / 2;
+	float ClipYPos = CCEGLView::sharedOpenGLView()->getFrameSize().height - m_pPlayer->getContentSize().height / 2;
 	if( m_pPlayer->getPositionY() >  ClipYPos )
 	{
 		m_pPlayer->setPositionY( ClipYPos );
@@ -492,7 +438,7 @@ void GameRun::cbUpdateForever( float aDelta )
 			scheduleOnce(schedule_selector(GameRun::resetCanHert),1.0f);
 
 			m_pHurtSprite->setVisible( true );
-			m_pHurtSprite->runAction( CCSequence::actions( 
+			m_pHurtSprite->runAction( CCSequence::create( 
 				m_AnimHurt,
 				CCCallFuncN::create( m_pHurtSprite, callfuncN_selector( GameRun::spriteHurtFinished ) ),
 				NULL
@@ -507,7 +453,7 @@ void GameRun::cbUpdateForever( float aDelta )
 		list<list_type>::iterator iter = m_TileList.begin();
 		while(iter != m_TileList.end())
 		{
-			if( iter->first->getPositionY() >= 845) // equal 850
+			if( iter->first->getPositionY() >= CCEGLView::sharedOpenGLView()->getFrameSize().height * 1.05f)
 			{
 				this->removeChild( iter->first, true );
 				iter = m_TileList.erase( iter );
@@ -560,7 +506,7 @@ void GameRun::cbUpdateForever( float aDelta )
 								scheduleOnce(schedule_selector(GameRun::resetCanHert),1.0f);
 
 								m_pHurtSprite->setVisible( true );
-								m_pHurtSprite->runAction( CCSequence::actions( 
+								m_pHurtSprite->runAction( CCSequence::create( 
 									m_AnimHurt,
 									CCCallFuncN::create( m_pHurtSprite, callfuncN_selector( GameRun::spriteHurtFinished ) ),
 									NULL
